@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import {useNavigate } from "react-router-dom";
+import axios from "axios";
 import './User.css';
 const CreateUser = () => {
     const navigate = useNavigate();
-    const createUserApi = "http://localhost:8000/add-user"
+    const createUserApi = "http://localhost:8000/api/add-user"
     const [error, setError] = useState(null);
     const [user, setUser] = useState({
         full_name: "",
-        email: "",
+        email_id: "",
         role: ""
     })
 
@@ -17,28 +18,26 @@ const CreateUser = () => {
         setUser({ ...user, [name]: value });
     }
 
-    const handelSubmit = async (event) => {
+    const handelSubmit = (event) => {
         event.preventDefault();
         try {
-            if (user.full_name =="" || user.email =="" || user.role ==""){
+            if (user.full_name =="" || user.email_id =="" || user.role ==""){
                 setError("Please check all field is required");
                 return false;
             }
-            const response = await fetch(createUserApi, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(user),
-            });
-
-            if (response.ok) {
-                console.log('Form submitted successfully!');
-                setUser({full_name: "",email: "",role: ""})
-                navigate('/show-user');
-            } else {
-                setError('Form submission failed!');                
-            }
+            //const response = 
+            axios.post(createUserApi, {
+                full_name: user.full_name, email_id: user.email_id , role: user.role
+            }).then((response) => {
+                console.log(response.data);
+                if (response.data.status == "Success") {
+                    setUser({full_name: "",email_id: "",role: ""})
+                    navigate('/show-user');
+                } else {
+                    setError(response.data.error);                
+                }
+            });            
+    
 
         } catch (error) {
             setError(error.message);
@@ -61,7 +60,7 @@ const CreateUser = () => {
                 </div>
                 <div className="mb-3 mt-3">
                     <label for="email" className="form-label">Email</label>
-                    <input type="email" className="form-control" id="email" name="email" value={user.email} onChange={handelInput} />
+                    <input type="email" className="form-control" id="email_id" name="email_id" value={user.email_id} onChange={handelInput} />
                 </div>
                 <div className="mb-3">
                     <label for="role" className="form-label">Phone</label>
